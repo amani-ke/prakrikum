@@ -1,0 +1,102 @@
+<?php
+// task.php
+
+// task.php
+
+class Task {
+    public $id;
+    public $due_date;
+    public $description;
+    public $priority;
+
+    public function __construct($id, $due_date, $description, $priority) {
+        $this->id = $id;
+        $this->due_date = $due_date;
+        $this->description = $description;
+        $this->priority = $priority;
+    }
+}
+
+
+?>
+
+database.....
+
+ public function read_tasks() {
+        $query = "SELECT id, due_date, description, priority FROM Task";
+        $statement = $this->cursor->query($query);
+        $tasks = [];
+
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $task = new Task($row['id'], $row['due_date'], $row['description'], $row['priority']);
+            $tasks[] = $task;
+        }
+
+        return $tasks;
+    }
+
+    // Method to delete a task from the database
+    public function delete_task($task_id) {
+        $query = "DELETE FROM Task WHERE id = :id";
+        $statement = $this->cursor->prepare($query);
+        $statement->bindParam(':id', $task_id, PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+
+
+
+
+
+
+
+index........
+
+include("task.php"); // Make sure to include the Task class
+
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['delete_task_submit'])) {
+        // Check if task_id is set
+        if (isset($_GET['task_id'])) {
+            $task_id = $_GET['task_id'];
+    
+            // Perform the deletion
+            $dbconnection->delete_task($task_id);
+    
+            // Redirect to refresh the page (prevent form resubmission on page refresh)
+            header("Location: index.php");
+            exit();
+        }
+    }
+
+............
+
+
+<tbody>
+                    <?php
+                      // Display tasks
+                      $tasks = $dbconnection->read_tasks();
+                      foreach ($tasks as $task) {
+                          echo "<tr>";
+                          echo "<td>{$task->id}</td>";
+                          echo "<td>{$task->due_date}</td>";
+                          echo "<td>{$task->description}</td>";
+                          echo "<td>{$task->priority}</td>";
+                          echo "<td>
+                          <form method='GET' action='index.php'>
+                                    <input type='hidden' name='task_id' value='{$task->id}'>
+                                    <button type='submit' name='delete_task_submit' class='btn btn-danger'><i class='fa fa-trash'></i></button>
+                                </form>
+                              </td>";
+                          echo "</tr>";
+                      }
+                    ?>
+                  </tbody>
+
+
+
+
+
+
+
+
+
